@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, Clock, Coffee, Battery, Download, Upload, Database, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
+import { DonationModal } from './donation-modal';
 
 export function SettingsView() {
   const { settings, updateSettings, isDarkMode, toggleDarkMode } =
@@ -15,7 +16,10 @@ export function SettingsView() {
 
   return (
     <div className="space-y-8 py-4">
-      <h2 className="text-foreground text-lg font-medium">Settings</h2>
+      <div className="flex flex-col gap-4">
+        <h2 className="text-foreground text-lg font-medium">Settings</h2>
+        <DonationModal />
+      </div>
 
       {/* Theme & Sound */}
       <div className="space-y-4">
@@ -271,6 +275,20 @@ export function SettingsView() {
       <div className="border-border/50 bg-muted/30 rounded-xl border p-4">
         <p className="text-muted-foreground text-xs">
           Your data is stored locally on this device. No account required.
+        </p>
+      </div>
+
+      <div className="text-center">
+        <p className="text-muted-foreground text-xs">
+          Made with ❤️ by{' '}
+          <a
+            href="https://github.com/lautaro1910"
+            target="_blank"
+            rel="noreferrer"
+            className="text-foreground hover:underline"
+          >
+            lautaro1910
+          </a>
         </p>
       </div>
     </div>
