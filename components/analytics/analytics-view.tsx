@@ -115,7 +115,6 @@ export function AnalyticsView() {
 
   return (
     <div className="space-y-8 py-4">
-      {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-4">
         {statCards.map((stat, index) => (
           <motion.div
@@ -137,7 +136,6 @@ export function AnalyticsView() {
         ))}
       </div>
 
-      {/* Focus Heatmap */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -152,7 +150,6 @@ export function AnalyticsView() {
         </div>
       </motion.div>
 
-      {/* Habit Streaks */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

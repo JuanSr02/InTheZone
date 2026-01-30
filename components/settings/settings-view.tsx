@@ -21,13 +21,11 @@ export function SettingsView() {
         <DonationModal />
       </div>
 
-      {/* Theme & Sound */}
       <div className="space-y-4">
         <h3 className="text-muted-foreground text-sm font-medium">
           Preferences
         </h3>
         <div className="bg-card space-y-4 rounded-xl border p-4">
-          {/* Dark Mode */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isDarkMode ? (
@@ -51,7 +49,6 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Sound */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {settings.soundEnabled ? (
@@ -77,14 +74,12 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Pomodoro Settings */}
       <div className="space-y-4">
         <h3 className="text-muted-foreground text-sm font-medium">
           Pomodoro Timer
         </h3>
 
         <div className="bg-card space-y-6 rounded-xl border p-4">
-          {/* Focus Duration */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -107,7 +102,6 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Short Break */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -130,7 +124,6 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Long Break */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -153,7 +146,6 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Sessions Until Long Break */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-foreground">
@@ -176,7 +168,6 @@ export function SettingsView() {
           </div>
         </div>
 
-      {/* Data & Storage */}
       <div className="space-y-4">
         <h3 className="text-muted-foreground text-sm font-medium">
           Data & Storage
