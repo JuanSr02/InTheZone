@@ -4,7 +4,7 @@ InTheZone es una aplicación de productividad moderna diseñada para ayudarte a 
 
 ## ✨ Características
 
-- **Temporizador Pomodoro**: Un temporizador estilo líquido con intervalos de trabajo/descanso personalizables y sonidos de enfoque.
+- **Temporizador Pomodoro**: Un temporizador estilo líquido con intervalos de trabajo/descanso personalizables y sonidos.
 - **Seguimiento de Hábitos**: Crea y sigue hábitos diarios para construir consistencia.
 - **Análisis**: Visualiza tu tiempo de enfoque y rachas de hábitos con gráficos interactivos.
 - **Notificaciones**: Sonidos de notificación para eventos del temporizador (inicio, completado, descanso).
