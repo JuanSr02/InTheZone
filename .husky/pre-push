@@ -1,0 +1,3 @@
+
+echo "running validation..."
+npm run validate
