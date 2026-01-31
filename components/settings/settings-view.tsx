@@ -273,12 +273,19 @@ export function SettingsView() {
         <p className="text-muted-foreground text-xs">
           Made with ❤️ by{' '}
           <a
-            href="https://github.com/lautaro1910"
+            href="https://www.instagram.com/simpledevs_sl?igsh=MXUwanducGY2dGxlcQ=="
             target="_blank"
             rel="noreferrer"
             className="text-foreground hover:underline"
           >
-            lautaro1910
+            SimpleDevs
+          </a>
+          {' • '}
+          <a
+            href="mailto:simpledevs.sl@gmail.com"
+            className="text-foreground hover:underline"
+          >
+            Contact
           </a>
         </p>
       </div>

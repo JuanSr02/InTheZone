@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { useAppStore } from '@/lib/store';
 import { FocusChart } from '@/components/pomodoro/focus-chart';
 import { StreakChart } from '@/components/habits/streak-chart';
-import { Clock, Target, TrendingUp, Calendar } from 'lucide-react';
+import { Clock, Target, TrendingUp, Calendar, Zap, BarChart, Sun } from 'lucide-react';
 
 export function AnalyticsView() {
-  const { sessions, habits, completions } = useAppStore();
+  const { sessions, habits, completions, getFocusStreak } = useAppStore();
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -32,6 +32,39 @@ export function AnalyticsView() {
     const weekFocusHours = Math.round(
       weekFocusSessions.reduce((acc, s) => acc + s.duration, 0) / 60
     );
+    
+    // Daily Average (Last 30 days)
+    const monthFocusMinutes = Math.round(
+      monthFocusSessions.reduce((acc, s) => acc + s.duration, 0) / 60
+    );
+    const dailyAverage = Math.round(monthFocusMinutes / 30);
+
+    // Streaks
+    const streak = getFocusStreak();
+
+    // Most Productive Hour
+    const hourCounts: Record<number, number> = {};
+    focusSessions.forEach(s => {
+      const hour = new Date(s.startedAt).getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+    });
+    
+    let bestHour = -1;
+    let maxCount = 0;
+    
+    Object.entries(hourCounts).forEach(([hour, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        bestHour = parseInt(hour);
+      }
+    });
+
+    const formatHour = (h: number) => {
+      if (h === -1) return "N/A";
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12} ${ampm}`;
+    };
 
     // Habit stats
     const activeHabits = habits.filter((h) => !h.archived);
@@ -75,10 +108,13 @@ export function AnalyticsView() {
       weekCompletions: weekCompletions.length,
       weekHabitRate,
       monthCompletions: monthCompletions.length,
+      currStreak: streak.current,
+      bestHour: formatHour(bestHour),
+      dailyAverage
     };
-  }, [sessions, habits, completions]);
+  }, [sessions, habits, completions, getFocusStreak]);
 
-  const statCards = [
+  const mainStats = [
     {
       label: 'Focus This Week',
       value: `${stats.weekFocusMinutes}m`,
@@ -113,10 +149,37 @@ export function AnalyticsView() {
     },
   ];
 
+  const secondaryStats = [
+    {
+      label: 'Current Streak',
+      value: `${stats.currStreak} days`,
+      sublabel: 'Consistent focus',
+      icon: Zap,
+      color: 'text-yellow-500',
+      bgColor: 'bg-yellow-500/10',
+    },
+    {
+      label: 'Daily Average',
+      value: `${stats.dailyAverage}m`,
+      sublabel: 'Last 30 days',
+      icon: BarChart,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+    },
+    {
+      label: 'Peak Hour',
+      value: stats.bestHour,
+      sublabel: 'Most productive',
+      icon: Sun,
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-500/10',
+    },
+  ];
+
   return (
     <div className="space-y-8 py-4">
       <div className="grid grid-cols-2 gap-4">
-        {statCards.map((stat, index) => (
+        {mainStats.map((stat, index) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
@@ -132,6 +195,24 @@ export function AnalyticsView() {
             <p className="text-muted-foreground/60 mt-1 text-xs">
               {stat.sublabel}
             </p>
+          </motion.div>
+        ))}
+      </div>
+
+     <div className="grid grid-cols-3 gap-4">
+        {secondaryStats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + (index * 0.1) }}
+            className="bg-card rounded-xl border p-4"
+          >
+            <div className={`mb-3 inline-flex rounded-lg p-2 ${stat.bgColor}`}>
+              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            </div>
+            <p className="text-foreground text-lg font-light">{stat.value}</p>
+            <p className="text-muted-foreground text-xs">{stat.label}</p>
           </motion.div>
         ))}
       </div>

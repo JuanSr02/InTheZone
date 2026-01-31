@@ -46,6 +46,7 @@ interface AppActions {
   getHabitStreak: (habitId: string) => { current: number; longest: number };
   getHabitCompletionRate: (habitId: string, days: number) => number;
   getFocusDataForDate: (date: string) => { minutes: number; sessions: number };
+  getFocusStreak: () => { current: number; longest: number };
 }
 
 export const useAppStore = create<AppState & AppActions>()(
@@ -376,6 +377,75 @@ export const useAppStore = create<AppState & AppActions>()(
           ),
           sessions: daySessions.length,
         };
+      },
+
+      getFocusStreak: () => {
+        const state = get();
+        // Get unique dates with completed focus sessions
+        const sessionDates = [
+          ...new Set(
+            state.sessions
+              .filter((s) => s.type === 'focus' && s.completed)
+              .map((s) => s.startedAt.split('T')[0])
+          ),
+        ]
+          .sort()
+          .reverse();
+
+        if (sessionDates.length === 0) return { current: 0, longest: 0 };
+
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000)
+          .toISOString()
+          .split('T')[0];
+
+        let current = 0;
+        let longest = 0;
+        let tempStreak = 0;
+        let prevDate: Date | null = null;
+
+        // Calculate current streak
+        // Check if the most recent session was today or yesterday to keep streak alive
+        if (sessionDates[0] === today || sessionDates[0] === yesterday) {
+          let checkDate =
+            sessionDates[0] === today
+              ? new Date()
+              : new Date(Date.now() - 86400000);
+          
+          for (const dateStr of sessionDates) {
+            const expectedDate = checkDate.toISOString().split('T')[0];
+            if (dateStr === expectedDate) {
+              current++;
+              checkDate = new Date(checkDate.getTime() - 86400000);
+            } else {
+              break;
+            }
+          }
+        }
+
+        // Calculate longest streak
+        const sortedAsc = [...sessionDates].sort();
+        for (const dateStr of sortedAsc) {
+          const date = new Date(dateStr);
+          if (prevDate === null) {
+            tempStreak = 1;
+          } else {
+            const diff = (date.getTime() - prevDate.getTime()) / 86400000;
+            // Allow for exactly 1 day difference (consecutive days)
+            // Using Math.round to handle potential DST oddities if any, 
+            // though 86400000 is usually safe for UTC-ish logic on whole dates
+            if (Math.round(diff) === 1) {
+              tempStreak++;
+            } else {
+              longest = Math.max(longest, tempStreak);
+              tempStreak = 1;
+            }
+          }
+          prevDate = date;
+        }
+        longest = Math.max(longest, tempStreak);
+
+        return { current, longest };
       },
     }),
     {
