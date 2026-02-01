@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Clock, Coffee, Battery, Download, Upload, Database, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
 import { DonationModal } from './donation-modal';
+import { UpdatesModal } from './updates-modal';
 
 export function SettingsView() {
   const { settings, updateSettings, isDarkMode, toggleDarkMode } =
@@ -18,6 +19,7 @@ export function SettingsView() {
     <div className="space-y-8 py-4">
       <div className="flex flex-col gap-4">
         <h2 className="text-foreground text-lg font-medium">Settings</h2>
+        <UpdatesModal />
         <DonationModal />
       </div>
 
