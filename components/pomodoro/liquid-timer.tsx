@@ -91,7 +91,7 @@ export function LiquidTimer() {
           {sessionLabel}
         </span>
         <p className="text-muted-foreground mt-1 text-xs">
-          Session {completedSessions + 1} of {settings.sessionsUntilLongBreak}
+          Session {(completedSessions % settings.sessionsUntilLongBreak) + 1} of {settings.sessionsUntilLongBreak}
         </p>
       </motion.div>
 
