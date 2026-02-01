@@ -20,6 +20,27 @@ function getIntensity(minutes: number): number {
   return 4;
 }
 
+function YAxis({ maxMinutes }: { maxMinutes: number }) {
+  // Always show at least some range
+  const max = Math.max(maxMinutes, 60);
+
+  return (
+    <div className="flex h-full flex-col justify-between pb-6 pt-4 text-[10px] text-muted-foreground w-8 text-right pr-1">
+      <div className="leading-none">{formatTime(max)}</div>
+      <div className="leading-none">{formatTime(Math.round(max / 2))}</div>
+      <div className="leading-none">0m</div>
+    </div>
+  );
+}
+
+function formatTime(minutes: number): string {
+  if (minutes >= 60) {
+    const hours = (minutes / 60).toFixed(1);
+    return `${hours.endsWith('.0') ? parseInt(hours) : hours}h`;
+  }
+  return `${minutes}m`;
+}
+
 export function FocusChart() {
   const { getFocusDataForDate, sessions } = useAppStore();
   const [view, setView] = useState<'week' | 'month' | 'year'>('week');
@@ -257,75 +278,81 @@ export function FocusChart() {
          
          {/* Week View (Bar Chart) */}
          {view === 'week' && (
-            <motion.div 
-             initial={{ opacity: 0, y: 10 }} 
-             animate={{ opacity: 1, y: 0 }}
-             className="flex h-full items-end justify-between gap-2 pt-4"
-            >
-              {weekData.days.map((day) => {
-                 const heightPercentage = Math.max((day.minutes / weekData.maxMinutes) * 100, 4); // Min 4% height
-                 return (
-                   <div key={day.date} className="flex flex-1 flex-col items-center gap-2 h-full justify-end group">
-                      <div className="relative w-full flex-1 flex items-end justify-center">
-                        <motion.div 
-                          initial={{ height: 0 }}
-                          animate={{ height: `${heightPercentage}%` }}
-                          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                          className={cn(
-                            "w-full max-w-[40px] rounded-t-md opacity-80 transition-opacity hover:opacity-100",
-                            day.minutes > 0 ? "bg-accent" : "bg-muted/30"
-                          )}
-                        />
-                        {/* Tooltip */}
-                        <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
-                          {day.minutes} mins
+            <div className="flex h-full items-end gap-2">
+              <YAxis maxMinutes={weekData.maxMinutes} />
+              <motion.div 
+               initial={{ opacity: 0, y: 10 }} 
+               animate={{ opacity: 1, y: 0 }}
+               className="flex h-full flex-1 items-end justify-between gap-2 pt-4"
+              >
+                {weekData.days.map((day) => {
+                   const heightPercentage = Math.max((day.minutes / weekData.maxMinutes) * 100, 4); // Min 4% height
+                   return (
+                     <div key={day.date} className="flex flex-1 flex-col items-center gap-2 h-full justify-end group">
+                        <div className="relative w-full flex-1 flex items-end justify-center">
+                          <motion.div 
+                            initial={{ height: 0 }}
+                            animate={{ height: `${heightPercentage}%` }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            className={cn(
+                              "w-full max-w-[40px] rounded-t-md opacity-80 transition-opacity hover:opacity-100",
+                              day.minutes > 0 ? "bg-accent" : "bg-muted/30"
+                            )}
+                          />
+                          {/* Tooltip */}
+                          <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
+                            {day.minutes} mins
+                          </div>
                         </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground font-medium">{day.label}</span>
-                   </div>
-                 );
-              })}
-            </motion.div>
+                        <span className="text-xs text-muted-foreground font-medium">{day.label}</span>
+                     </div>
+                   );
+                })}
+              </motion.div>
+            </div>
          )}
 
          {/* Month View (Bar Chart) */}
          {view === 'month' && (
-            <motion.div 
-             initial={{ opacity: 0, y: 10 }} 
-             animate={{ opacity: 1, y: 0 }}
-             className="flex h-full items-end justify-between gap-[2px] pt-4"
-            >
-              {monthData.days.map((day, i) => {
-                 const heightPercentage = Math.max((day.minutes / monthData.maxMinutes) * 100, 4);
-                 // Only show some labels to avoid clutter
-                 const showLabel = i % 5 === 0 || i === monthData.days.length - 1;
-                 
-                 return (
-                   <div key={day.date} className="flex flex-1 flex-col items-center gap-2 h-full justify-end group">
-                      <div className="relative w-full flex-1 flex items-end justify-center">
-                        <motion.div 
-                          initial={{ height: 0 }}
-                          animate={{ height: `${heightPercentage}%` }}
-                          transition={{ delay: i * 0.01 }}
-                          className={cn(
-                            "w-full rounded-t-sm opacity-80 transition-opacity hover:opacity-100",
-                            day.minutes > 0 ? "bg-accent" : "bg-muted/30"
-                          )}
-                        />
-                         {/* Tooltip */}
-                        <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
-                          {day.date}: {day.minutes} mins
+            <div className="flex h-full items-end gap-2">
+              <YAxis maxMinutes={monthData.maxMinutes} />
+              <motion.div 
+               initial={{ opacity: 0, y: 10 }} 
+               animate={{ opacity: 1, y: 0 }}
+               className="flex h-full flex-1 items-end justify-between gap-[2px] pt-4"
+              >
+                {monthData.days.map((day, i) => {
+                   const heightPercentage = Math.max((day.minutes / monthData.maxMinutes) * 100, 4);
+                   // Only show some labels to avoid clutter
+                   const showLabel = i % 5 === 0 || i === monthData.days.length - 1;
+                   
+                   return (
+                     <div key={day.date} className="flex flex-1 flex-col items-center gap-2 h-full justify-end group">
+                        <div className="relative w-full flex-1 flex items-end justify-center">
+                          <motion.div 
+                            initial={{ height: 0 }}
+                            animate={{ height: `${heightPercentage}%` }}
+                            transition={{ delay: i * 0.01 }}
+                            className={cn(
+                              "w-full rounded-t-sm opacity-80 transition-opacity hover:opacity-100",
+                              day.minutes > 0 ? "bg-accent" : "bg-muted/30"
+                            )}
+                          />
+                           {/* Tooltip */}
+                          <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
+                            {day.date}: {day.minutes} mins
+                          </div>
                         </div>
-                      </div>
-                      <div className="h-4 relative w-full flex justify-center">
-                        {showLabel && (
-                          <span className="absolute text-[10px] text-muted-foreground">{day.label}</span>
-                        )}
-                      </div>
-                   </div>
-                 );
-              })}
-            </motion.div>
+                        <div className="h-4 relative w-full flex justify-center">
+                          {showLabel && (
+                            <span className="absolute text-[10px] text-muted-foreground">{day.label}</span>
+                          )}
+                        </div>
+                     </div>
+                   );
+                })}
+              </motion.div>
+            </div>
          )}
       </div>
       
