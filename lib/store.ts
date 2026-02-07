@@ -10,6 +10,7 @@ import type {
   Habit,
   HabitCompletion,
   CreateHabitInput,
+  Category,
 } from './types';
 
 const DEFAULT_SETTINGS: PomodoroSettings = {
@@ -29,7 +30,9 @@ interface AppActions {
   tick: () => void;
   completeSession: () => void;
   skipToNext: () => void;
+
   updateSettings: (settings: Partial<PomodoroSettings>) => void;
+  setSelectedCategory: (category: Category) => void;
 
   // Habit Actions
   addHabit: (input: CreateHabitInput) => void;
@@ -62,7 +65,9 @@ export const useAppStore = create<AppState & AppActions>()(
       habits: [],
       completions: [],
       activeTab: 'timer',
+
       isDarkMode: true,
+      selectedCategory: 'work',
 
       // Pomodoro Actions
       startTimer: () => {
@@ -129,6 +134,7 @@ export const useAppStore = create<AppState & AppActions>()(
                 ? state.settings.shortBreakDuration
                 : state.settings.longBreakDuration) * 60,
           type: state.currentSessionType,
+          category: state.selectedCategory,
           completed: true,
         };
 
@@ -192,6 +198,8 @@ export const useAppStore = create<AppState & AppActions>()(
           pomodoroState: 'idle',
         });
       },
+
+      setSelectedCategory: (category) => set({ selectedCategory: category }),
 
       updateSettings: (newSettings) => {
         const state = get();

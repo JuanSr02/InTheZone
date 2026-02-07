@@ -54,6 +54,16 @@ export function UpdatesModal() {
               Added a Y-axis to the Focus Activity chart in Analytics to clearer visualize your concentration time.
             </p>
           </div>
+          
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium leading-none flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Session Categories
+            </h4>
+            <p className="text-xs text-muted-foreground ml-6">
+              Label your focus sessions by category (Work, Study, Code, etc.) and track your time distribution with beautiful analytics and detailed statistics.
+            </p>
+          </div>
         </div>
         
         <div className="text-muted-foreground text-xs text-center border-t pt-4">

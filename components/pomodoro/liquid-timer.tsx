@@ -6,6 +6,8 @@ import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Category } from '@/lib/types';
+import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from '@/lib/constants';
 
 export function LiquidTimer() {
   const {
@@ -20,6 +22,8 @@ export function LiquidTimer() {
     resetTimer,
     skipToNext,
     tick,
+    selectedCategory,
+    setSelectedCategory,
   } = useAppStore();
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,6 +98,9 @@ export function LiquidTimer() {
           Session {(completedSessions % settings.sessionsUntilLongBreak) + 1} of {settings.sessionsUntilLongBreak}
         </p>
       </motion.div>
+
+      {/* Category Selector */}
+
 
       {/* Liquid Timer Visual */}
       <div className="relative">
@@ -290,6 +297,51 @@ export function LiquidTimer() {
           <SkipForward className="h-5 w-5" />
         </Button>
       </div>
+
+      {/* Category Selector */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-wrap gap-2 justify-center max-w-md"
+      >
+        {(Object.keys(CATEGORY_COLORS) as Category[]).map((category) => {
+          const Icon = CATEGORY_ICONS[category];
+          const isSelected = selectedCategory === category;
+          
+          return (
+            <motion.button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all',
+                'border backdrop-blur-sm',
+                isSelected ? 'bg-background/80' : 'bg-background/30'
+              )}
+              style={{
+                color: isSelected ? CATEGORY_COLORS[category] : '#6B7280',
+                borderColor: isSelected ? CATEGORY_COLORS[category] : 'transparent',
+              }}
+              animate={{
+                scale: isSelected ? 1 : 0.85,
+                opacity: isSelected ? 1 : 0.6,
+              }}
+              whileHover={{ 
+                scale: isSelected ? 1.05 : 0.9,
+                opacity: 1,
+              }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 17 
+              }}
+            >
+              <Icon className="h-3 w-3" />
+              {isSelected && <span>{CATEGORY_LABELS[category]}</span>}
+            </motion.button>
+          );
+        })}
+      </motion.div>
     </div>
   );
 }

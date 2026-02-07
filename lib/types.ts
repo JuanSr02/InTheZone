@@ -11,12 +11,24 @@ export const PomodoroStateSchema = z.enum([
 
 export type PomodoroState = z.infer<typeof PomodoroStateSchema>;
 
+export const CategorySchema = z.enum([
+  'work',
+  'study',
+  'code',
+  'reading',
+  'meditation',
+  'other',
+]);
+
+export type Category = z.infer<typeof CategorySchema>;
+
 export const PomodoroSessionSchema = z.object({
   id: z.string().uuid(),
   startedAt: z.string().datetime(),
   endedAt: z.string().datetime().optional(),
   duration: z.number().int().positive(), // in seconds
   type: z.enum(['focus', 'shortBreak', 'longBreak']),
+  category: CategorySchema.optional(),
   completed: z.boolean(),
 });
 
@@ -99,7 +111,9 @@ export interface AppState {
   currentSessionType: 'focus' | 'shortBreak' | 'longBreak';
   completedSessions: number;
   sessions: PomodoroSession[];
+
   settings: PomodoroSettings;
+  selectedCategory: Category;
 
   // Habits
   habits: Habit[];
