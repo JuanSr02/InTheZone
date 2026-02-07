@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
+import { Play, Pause, RotateCcw, SkipForward, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Category } from '@/lib/types';
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from '@/lib/constants';
@@ -24,6 +24,7 @@ export function LiquidTimer() {
     tick,
     selectedCategory,
     setSelectedCategory,
+    resetSessions,
   } = useAppStore();
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -97,6 +98,19 @@ export function LiquidTimer() {
         <p className="text-muted-foreground mt-1 text-xs">
           Session {(completedSessions % settings.sessionsUntilLongBreak) + 1} of {settings.sessionsUntilLongBreak}
         </p>
+        {(completedSessions % settings.sessionsUntilLongBreak) > 0 && (
+          <button
+            onClick={() => {
+              if (confirm('Reset to session 1?')) {
+                resetSessions();
+              }
+            }}
+            className="text-muted-foreground hover:text-warning mt-2 flex items-center gap-1 text-xs transition-colors"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Reset Sessions</span>
+          </button>
+        )}
       </motion.div>
 
       {/* Category Selector */}
@@ -307,15 +321,17 @@ export function LiquidTimer() {
         {(Object.keys(CATEGORY_COLORS) as Category[]).map((category) => {
           const Icon = CATEGORY_ICONS[category];
           const isSelected = selectedCategory === category;
-          
+
           return (
             <motion.button
               key={category}
               onClick={() => setSelectedCategory(category)}
+              disabled={isActive}
               className={cn(
                 'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all',
                 'border backdrop-blur-sm',
-                isSelected ? 'bg-background/80' : 'bg-background/30'
+                isSelected ? 'bg-background/80' : 'bg-background/30',
+                isActive && 'cursor-not-allowed opacity-50'
               )}
               style={{
                 color: isSelected ? CATEGORY_COLORS[category] : '#6B7280',
@@ -325,15 +341,15 @@ export function LiquidTimer() {
                 scale: isSelected ? 1 : 0.85,
                 opacity: isSelected ? 1 : 0.6,
               }}
-              whileHover={{ 
+              whileHover={!isActive ? {
                 scale: isSelected ? 1.05 : 0.9,
                 opacity: 1,
-              }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 400, 
-                damping: 17 
+              } : {}}
+              whileTap={!isActive ? { scale: 0.95 } : {}}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 17
               }}
             >
               <Icon className="h-3 w-3" />

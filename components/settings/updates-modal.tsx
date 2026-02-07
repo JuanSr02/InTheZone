@@ -12,11 +12,21 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, CheckCircle2 } from 'lucide-react';
 
 // Update this array to add new updates - also la version (nota para mi, esto deberia reflejarse en el release de github y en el manifest.json)
-const APP_VERSION = 'v1.0.3';
+const APP_VERSION = 'v1.0.4';
 const UPDATES = [
-  {title: 'Separation tab on charts', 
-    description: 'Now you can see your focus activity separated of the habit tracker.',},
-  
+  {
+    title: 'Session Reset Options',
+    description: 'New reset buttons to restart your session counter or completely reset all app data. Reset Sessions brings you back to session 1, while Hard Reset clears everything.',
+  },
+  {
+    title: 'Category Lock During Sessions',
+    description: 'Categories are now locked when the timer is active, preventing accidental changes during your focus sessions.',
+  },
+  {
+    title: 'Separation tab on charts',
+    description: 'Now you can see your focus activity separated of the habit tracker.',
+  },
+
   {
     title: 'Session Categories',
     description: 'Label your focus sessions by category (Work, Study, Code, etc.) and track your time distribution with beautiful analytics and detailed statistics.',
@@ -67,9 +77,9 @@ export function UpdatesModal() {
             </div>
           ))}
         </div>
-        
+
         <div className="text-muted-foreground text-xs text-center border-t pt-4">
-           InTheZone {APP_VERSION}
+          InTheZone {APP_VERSION}
         </div>
       </DialogContent>
     </Dialog>

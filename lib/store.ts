@@ -33,6 +33,8 @@ interface AppActions {
 
   updateSettings: (settings: Partial<PomodoroSettings>) => void;
   setSelectedCategory: (category: Category) => void;
+  resetSessions: () => void;
+  hardReset: () => void;
 
   // Habit Actions
   addHabit: (input: CreateHabitInput) => void;
@@ -118,13 +120,13 @@ export const useAppStore = create<AppState & AppActions>()(
           id: crypto.randomUUID(),
           startedAt: new Date(
             Date.now() -
-              (state.currentSessionType === 'focus'
-                ? state.settings.focusDuration
-                : state.currentSessionType === 'shortBreak'
-                  ? state.settings.shortBreakDuration
-                  : state.settings.longBreakDuration) *
-                60 *
-                1000
+            (state.currentSessionType === 'focus'
+              ? state.settings.focusDuration
+              : state.currentSessionType === 'shortBreak'
+                ? state.settings.shortBreakDuration
+                : state.settings.longBreakDuration) *
+            60 *
+            1000
           ).toISOString(),
           endedAt: now,
           duration:
@@ -178,7 +180,7 @@ export const useAppStore = create<AppState & AppActions>()(
           nextType =
             (state.completedSessions + 1) %
               state.settings.sessionsUntilLongBreak ===
-            0
+              0
               ? 'longBreak'
               : 'shortBreak';
         } else {
@@ -216,6 +218,30 @@ export const useAppStore = create<AppState & AppActions>()(
                 : settings.longBreakDuration;
           set({ timeRemaining: duration * 60 });
         }
+      },
+
+      resetSessions: () => {
+        const state = get();
+        set({
+          pomodoroState: 'idle',
+          timeRemaining: state.settings.focusDuration * 60,
+          currentSessionType: 'focus',
+          completedSessions: 0,
+        });
+      },
+
+      hardReset: () => {
+        set({
+          pomodoroState: 'idle',
+          timeRemaining: DEFAULT_SETTINGS.focusDuration * 60,
+          currentSessionType: 'focus',
+          completedSessions: 0,
+          sessions: [],
+          settings: DEFAULT_SETTINGS,
+          habits: [],
+          completions: [],
+          selectedCategory: 'work',
+        });
       },
 
       // Habit Actions
@@ -419,7 +445,7 @@ export const useAppStore = create<AppState & AppActions>()(
             sessionDates[0] === today
               ? new Date()
               : new Date(Date.now() - 86400000);
-          
+
           for (const dateStr of sessionDates) {
             const expectedDate = checkDate.toISOString().split('T')[0];
             if (dateStr === expectedDate) {
