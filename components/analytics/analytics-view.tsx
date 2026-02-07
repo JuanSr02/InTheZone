@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAppStore } from '@/lib/store';
 import { FocusChart } from '@/components/pomodoro/focus-chart';
 import { StreakChart } from '@/components/habits/streak-chart';
+import { CategoryChart } from '@/components/analytics/category-chart';
 import { Clock, Target, TrendingUp, Calendar, Zap, BarChart, Sun } from 'lucide-react';
 
 export function AnalyticsView() {
@@ -231,19 +232,35 @@ export function AnalyticsView() {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="space-y-4"
-      >
-        <h2 className="text-muted-foreground text-sm font-medium">
-          Habit Streaks
-        </h2>
-        <div className="bg-card rounded-xl border p-4">
-          <StreakChart />
-        </div>
-      </motion.div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-4"
+        >
+          <h2 className="text-muted-foreground text-sm font-medium">
+            Focus by Category
+          </h2>
+          <div className="bg-card rounded-xl border p-4">
+            <CategoryChart />
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="space-y-4"
+        >
+          <h2 className="text-muted-foreground text-sm font-medium">
+            Habit Streaks
+          </h2>
+          <div className="bg-card rounded-xl border p-4">
+            <StreakChart />
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
