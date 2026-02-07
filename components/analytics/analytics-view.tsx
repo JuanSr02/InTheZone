@@ -1,15 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/lib/store';
 import { FocusChart } from '@/components/pomodoro/focus-chart';
 import { StreakChart } from '@/components/habits/streak-chart';
 import { CategoryChart } from '@/components/analytics/category-chart';
-import { Clock, Target, TrendingUp, Calendar, Zap, BarChart, Sun } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Clock, Target, TrendingUp, Calendar, Zap, BarChart, Sun, Flame, Trophy } from 'lucide-react';
 
 export function AnalyticsView() {
   const { sessions, habits, completions, getFocusStreak } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'focus' | 'habits'>('focus');
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -115,7 +117,8 @@ export function AnalyticsView() {
     };
   }, [sessions, habits, completions, getFocusStreak]);
 
-  const mainStats = [
+  // Focus-specific stats
+  const focusStats = [
     {
       label: 'Focus This Week',
       value: `${stats.weekFocusMinutes}m`,
@@ -132,25 +135,6 @@ export function AnalyticsView() {
       color: 'text-success',
       bgColor: 'bg-success/10',
     },
-    {
-      label: 'Week Completion',
-      value: `${stats.weekHabitRate}%`,
-      sublabel: `${stats.weekCompletions} habits done`,
-      icon: Target,
-      color: 'text-warning',
-      bgColor: 'bg-warning/10',
-    },
-    {
-      label: 'Active Habits',
-      value: stats.activeHabits,
-      sublabel: `${stats.monthCompletions} this month`,
-      icon: Calendar,
-      color: 'text-chart-3',
-      bgColor: 'bg-chart-3/10',
-    },
-  ];
-
-  const secondaryStats = [
     {
       label: 'Current Streak',
       value: `${stats.currStreak} days`,
@@ -177,90 +161,148 @@ export function AnalyticsView() {
     },
   ];
 
+  // Habit-specific stats
+  const habitStats = [
+    {
+      label: 'Week Completion',
+      value: `${stats.weekHabitRate}%`,
+      sublabel: `${stats.weekCompletions} habits done`,
+      icon: Target,
+      color: 'text-warning',
+      bgColor: 'bg-warning/10',
+    },
+    {
+      label: 'Active Habits',
+      value: stats.activeHabits,
+      sublabel: `${stats.monthCompletions} this month`,
+      icon: Calendar,
+      color: 'text-chart-3',
+      bgColor: 'bg-chart-3/10',
+    },
+  ];
+
   return (
-    <div className="space-y-8 py-4">
-      <div className="grid grid-cols-2 gap-4">
-        {mainStats.map((stat, index) => (
+    <div className="space-y-6 py-4">
+      {/* Tab Interface */}
+      <div className="flex justify-center">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'focus' | 'habits')} className="w-full max-w-md">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="focus">Focus Pomodoro</TabsTrigger>
+            <TabsTrigger value="habits">Habit Tracker</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {activeTab === 'focus' ? (
           <motion.div
-            key={stat.label}
+            key="focus"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-card rounded-xl border p-4"
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-8"
           >
-            <div className={`mb-3 inline-flex rounded-lg p-2 ${stat.bgColor}`}>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            {/* Focus Stats Grid */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {focusStats.map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-card rounded-xl border p-4"
+                >
+                  <div className={`mb-3 inline-flex rounded-lg p-2 ${stat.bgColor}`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                  <p className="text-foreground text-2xl font-light">{stat.value}</p>
+                  <p className="text-muted-foreground text-xs">{stat.label}</p>
+                  <p className="text-muted-foreground/60 mt-1 text-xs">
+                    {stat.sublabel}
+                  </p>
+                </motion.div>
+              ))}
             </div>
-            <p className="text-foreground text-2xl font-light">{stat.value}</p>
-            <p className="text-muted-foreground text-xs">{stat.label}</p>
-            <p className="text-muted-foreground/60 mt-1 text-xs">
-              {stat.sublabel}
-            </p>
-          </motion.div>
-        ))}
-      </div>
 
-     <div className="grid grid-cols-3 gap-4">
-        {secondaryStats.map((stat, index) => (
+            {/* Focus Activity Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Focus Activity
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <FocusChart />
+              </div>
+            </motion.div>
+
+            {/* Focus by Category Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Focus by Category
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <CategoryChart />
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : (
           <motion.div
-            key={stat.label}
+            key="habits"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + (index * 0.1) }}
-            className="bg-card rounded-xl border p-4"
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-8"
           >
-            <div className={`mb-3 inline-flex rounded-lg p-2 ${stat.bgColor}`}>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            {/* Habit Stats Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {habitStats.map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-card rounded-xl border p-4"
+                >
+                  <div className={`mb-3 inline-flex rounded-lg p-2 ${stat.bgColor}`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                  <p className="text-foreground text-2xl font-light">{stat.value}</p>
+                  <p className="text-muted-foreground text-xs">{stat.label}</p>
+                  <p className="text-muted-foreground/60 mt-1 text-xs">
+                    {stat.sublabel}
+                  </p>
+                </motion.div>
+              ))}
             </div>
-            <p className="text-foreground text-lg font-light">{stat.value}</p>
-            <p className="text-muted-foreground text-xs">{stat.label}</p>
+
+            {/* Habit Streaks Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Habit Streaks
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <StreakChart />
+              </div>
+            </motion.div>
           </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="space-y-4"
-      >
-        <h2 className="text-muted-foreground text-sm font-medium">
-          Focus Activity
-        </h2>
-        <div className="bg-card rounded-xl border p-4">
-          <FocusChart />
-        </div>
-      </motion.div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="space-y-4"
-        >
-          <h2 className="text-muted-foreground text-sm font-medium">
-            Focus by Category
-          </h2>
-          <div className="bg-card rounded-xl border p-4">
-            <CategoryChart />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="space-y-4"
-        >
-          <h2 className="text-muted-foreground text-sm font-medium">
-            Habit Streaks
-          </h2>
-          <div className="bg-card rounded-xl border p-4">
-            <StreakChart />
-          </div>
-        </motion.div>
-      </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
