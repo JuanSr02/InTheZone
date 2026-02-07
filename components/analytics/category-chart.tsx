@@ -1,29 +1,59 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 import { Category } from '@/lib/types';
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from '@/lib/constants';
 import { Clock, Hash, TrendingUp } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+type TimePeriod = 'today' | 'week' | 'month' | 'year';
 
 export function CategoryChart() {
   const { sessions } = useAppStore();
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
 
   const { data, stats } = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeek = new Date(now.getTime() - 7 * 86400000);
+    const thisMonth = new Date(now.getTime() - 30 * 86400000);
+    const thisYear = new Date(now.getTime() - 365 * 86400000);
+
+    // Filter sessions based on selected time period
+    const filteredSessions = sessions.filter((session) => {
+      if (session.type !== 'focus' || !session.completed || !session.category) {
+        return false;
+      }
+      
+      const sessionDate = new Date(session.startedAt);
+      
+      switch (timePeriod) {
+        case 'today':
+          return sessionDate >= today;
+        case 'week':
+          return sessionDate >= thisWeek;
+        case 'month':
+          return sessionDate >= thisMonth;
+        case 'year':
+          return sessionDate >= thisYear;
+        default:
+          return true;
+      }
+    });
+
     const categoryData: Record<string, { minutes: number; sessions: number }> = {};
 
-    sessions.forEach((session) => {
-      if (session.type === 'focus' && session.completed && session.category) {
-        const minutes = Math.round(session.duration / 60);
-        const category = session.category;
-        if (!categoryData[category]) {
-          categoryData[category] = { minutes: 0, sessions: 0 };
-        }
-        categoryData[category].minutes += minutes;
-        categoryData[category].sessions += 1;
+    filteredSessions.forEach((session) => {
+      const minutes = Math.round(session.duration / 60);
+      const category = session.category!;
+      if (!categoryData[category]) {
+        categoryData[category] = { minutes: 0, sessions: 0 };
       }
+      categoryData[category].minutes += minutes;
+      categoryData[category].sessions += 1;
     });
 
     const totalMinutes = Object.values(categoryData).reduce((sum, cat) => sum + cat.minutes, 0);
@@ -49,7 +79,7 @@ export function CategoryChart() {
     }));
 
     return { data: chartData, stats: statsData };
-  }, [sessions]);
+  }, [sessions, timePeriod]);
 
   if (data.length === 0) {
     return (
@@ -61,6 +91,18 @@ export function CategoryChart() {
 
   return (
     <div className="space-y-6">
+      {/* Time Period Filter */}
+      <div className="flex justify-center">
+        <Tabs value={timePeriod} onValueChange={(v) => setTimePeriod(v as TimePeriod)} className="w-full max-w-md">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="today">Today</TabsTrigger>
+            <TabsTrigger value="week">Week</TabsTrigger>
+            <TabsTrigger value="month">Month</TabsTrigger>
+            <TabsTrigger value="year">Year</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {/* Chart */}
       <div className="h-[240px] w-full">
         <ResponsiveContainer width="100%" height="100%">
