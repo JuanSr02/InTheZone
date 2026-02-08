@@ -94,15 +94,12 @@ export function CategoryChart() {
           </TabsList>
         </Tabs>
       </div>
-
-      {/* Chart or Empty State */}
       {data.length === 0 ? (
         <div className="flex h-[240px] items-center justify-center text-muted-foreground text-sm">
           No category data available for this period
         </div>
       ) : (
         <>
-          {/* Chart */}
           <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
