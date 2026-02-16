@@ -20,21 +20,21 @@ function getIntensity(minutes: number): number {
   return 4;
 }
 
-function YAxis({ maxMinutes }: { maxMinutes: number }) {
+function YAxis({ maxMinutes, timeUnit }: { maxMinutes: number; timeUnit: 'minutes' | 'hours' }) {
   // Always show at least some range
   const max = Math.max(maxMinutes, 60);
 
   return (
     <div className="flex h-full flex-col justify-between pb-6 pt-4 text-[10px] text-muted-foreground w-8 text-right pr-1">
-      <div className="leading-none">{formatTime(max)}</div>
-      <div className="leading-none">{formatTime(Math.round(max / 2))}</div>
-      <div className="leading-none">0m</div>
+      <div className="leading-none">{formatTime(max, timeUnit)}</div>
+      <div className="leading-none">{formatTime(Math.round(max / 2), timeUnit)}</div>
+      <div className="leading-none">{timeUnit === 'hours' ? '0h' : '0m'}</div>
     </div>
   );
 }
 
-function formatTime(minutes: number): string {
-  if (minutes >= 60) {
+function formatTime(minutes: number, timeUnit: 'minutes' | 'hours' = 'minutes'): string {
+  if (timeUnit === 'hours') {
     const hours = (minutes / 60).toFixed(1);
     return `${hours.endsWith('.0') ? parseInt(hours) : hours}h`;
   }
@@ -44,6 +44,7 @@ function formatTime(minutes: number): string {
 export function FocusChart() {
   const { getFocusDataForDate, sessions } = useAppStore();
   const [view, setView] = useState<'week' | 'month' | 'year'>('week');
+  const [timeUnit, setTimeUnit] = useState<'minutes' | 'hours'>('minutes');
 
   // Year View (Heatmap) Data
   const yearData = useMemo(() => {
@@ -181,8 +182,8 @@ export function FocusChart() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-[400px]">
+      <div className="flex items-center justify-between gap-4">
+        <Tabs value={view} onValueChange={(v) => setView(v as any)} className="flex-1">
           <TabsList>
             <TabsTrigger value="week">Week</TabsTrigger>
             <TabsTrigger value="month">Month</TabsTrigger>
@@ -190,13 +191,13 @@ export function FocusChart() {
           </TabsList>
         </Tabs>
         
-        {/* Dynamic Legend/Stats depending on view could go here */}
-        <div className="text-right">
-             <span className="text-2xl font-light text-foreground">
-               {view === 'week' ? weekData.totalHours : view === 'month' ? monthData.totalHours : yearData.stats.totalHours}
-             </span>
-             <span className="text-xs text-muted-foreground ml-1">Total Hours</span>
-        </div>
+        {/* Time Unit Toggle */}
+        <Tabs value={timeUnit} onValueChange={(v) => setTimeUnit(v as any)} className="w-auto">
+          <TabsList className="h-9">
+            <TabsTrigger value="minutes" className="text-xs px-3">Min</TabsTrigger>
+            <TabsTrigger value="hours" className="text-xs px-3">Hrs</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="h-[200px] w-full">
@@ -279,7 +280,7 @@ export function FocusChart() {
          {/* Week View (Bar Chart) */}
          {view === 'week' && (
             <div className="flex h-full items-end gap-2">
-              <YAxis maxMinutes={weekData.maxMinutes} />
+              <YAxis maxMinutes={weekData.maxMinutes} timeUnit={timeUnit} />
               <motion.div 
                initial={{ opacity: 0, y: 10 }} 
                animate={{ opacity: 1, y: 0 }}
@@ -301,7 +302,7 @@ export function FocusChart() {
                           />
                           {/* Tooltip */}
                           <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
-                            {day.minutes} mins
+                            {formatTime(day.minutes, timeUnit)}
                           </div>
                         </div>
                         <span className="text-xs text-muted-foreground font-medium">{day.label}</span>
@@ -315,7 +316,7 @@ export function FocusChart() {
          {/* Month View (Bar Chart) */}
          {view === 'month' && (
             <div className="flex h-full items-end gap-2">
-              <YAxis maxMinutes={monthData.maxMinutes} />
+              <YAxis maxMinutes={monthData.maxMinutes} timeUnit={timeUnit} />
               <motion.div 
                initial={{ opacity: 0, y: 10 }} 
                animate={{ opacity: 1, y: 0 }}
@@ -340,7 +341,7 @@ export function FocusChart() {
                           />
                            {/* Tooltip */}
                           <div className="absolute bottom-[100%] mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs rounded px-2 py-1 pointer-events-none whitespace-nowrap z-10 shadow-sm border">
-                            {day.date}: {day.minutes} mins
+                            {day.date}: {formatTime(day.minutes, timeUnit)}
                           </div>
                         </div>
                         <div className="h-4 relative w-full flex justify-center">

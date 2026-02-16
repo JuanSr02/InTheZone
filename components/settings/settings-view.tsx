@@ -98,7 +98,7 @@ export function SettingsView() {
                 updateSettings({ focusDuration: value })
               }
               min={5}
-              max={60}
+              max={120}
               step={5}
               className="w-full"
             />
