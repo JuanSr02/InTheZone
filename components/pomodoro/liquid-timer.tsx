@@ -61,17 +61,18 @@ export function LiquidTimer() {
     // Normalize angle to 0-360, starting from top (270 degrees)
     angle = (angle + 90 + 360) % 360;
     
-    // Convert angle to time (0-360 degrees = 0-max duration)
+    // Convert angle to time (0-360 degrees = 1-max duration)
     const maxDuration = currentSessionType === 'focus' 
       ? settings.focusDuration 
       : currentSessionType === 'shortBreak'
         ? settings.shortBreakDuration
         : settings.longBreakDuration;
     
-    const newMinutes = Math.round((angle / 360) * maxDuration);
+    // Map angle to minutes: 0 degrees = 1 minute, 360 degrees = maxDuration
+    const newMinutes = Math.max(1, Math.round((angle / 360) * maxDuration));
     const clampedMinutes = Math.max(1, Math.min(maxDuration, newMinutes));
     
-    // Update settings based on session type
+    // Update settings based on session type - this will trigger timeRemaining update in store
     if (currentSessionType === 'focus') {
       updateSettings({ focusDuration: clampedMinutes });
     } else if (currentSessionType === 'shortBreak') {

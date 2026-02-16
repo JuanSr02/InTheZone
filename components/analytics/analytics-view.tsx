@@ -6,6 +6,9 @@ import { useAppStore } from '@/lib/store';
 import { FocusChart } from '@/components/pomodoro/focus-chart';
 import { StreakChart } from '@/components/habits/streak-chart';
 import { CategoryChart } from '@/components/analytics/category-chart';
+import { ProductivityHourChart } from '@/components/analytics/productivity-hour-chart';
+import { SessionDurationChart } from '@/components/analytics/session-duration-chart';
+import { WeeklyComparisonChart } from '@/components/analytics/weekly-comparison-chart';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Target, TrendingUp, Calendar, Zap, BarChart, Sun, Flame, Trophy } from 'lucide-react';
 
@@ -252,6 +255,51 @@ export function AnalyticsView() {
               </h2>
               <div className="bg-card rounded-xl border p-4">
                 <CategoryChart />
+              </div>
+            </motion.div>
+
+            {/* Productivity by Hour Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Productivity by Hour
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <ProductivityHourChart />
+              </div>
+            </motion.div>
+
+            {/* Session Duration Distribution */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Session Duration Distribution
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <SessionDurationChart />
+              </div>
+            </motion.div>
+
+            {/* Weekly Comparison */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="space-y-4"
+            >
+              <h2 className="text-muted-foreground text-sm font-medium">
+                Weekly Comparison
+              </h2>
+              <div className="bg-card rounded-xl border p-4">
+                <WeeklyComparisonChart />
               </div>
             </motion.div>
           </motion.div>
