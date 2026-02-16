@@ -29,8 +29,6 @@ export function LiquidTimer() {
   } = useAppStore();
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   // Timer tick effect
   useEffect(() => {
@@ -44,77 +42,6 @@ export function LiquidTimer() {
       }
     };
   }, [pomodoroState, tick]);
-
-  // Interactive time adjustment handlers
-  const handleTimeAdjustment = (clientX: number, clientY: number) => {
-    if (!timerRef.current || pomodoroState !== 'idle') return;
-
-    const rect = timerRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // Calculate angle from center
-    const deltaX = clientX - centerX;
-    const deltaY = clientY - centerY;
-    let angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    
-    // Normalize angle to 0-360, starting from top (270 degrees)
-    angle = (angle + 90 + 360) % 360;
-    
-    // Convert angle to time (0-360 degrees = 1-max duration)
-    const maxDuration = currentSessionType === 'focus' 
-      ? settings.focusDuration 
-      : currentSessionType === 'shortBreak'
-        ? settings.shortBreakDuration
-        : settings.longBreakDuration;
-    
-    // Map angle to minutes: 0 degrees = 1 minute, 360 degrees = maxDuration
-    const newMinutes = Math.max(1, Math.round((angle / 360) * maxDuration));
-    const clampedMinutes = Math.max(1, Math.min(maxDuration, newMinutes));
-    
-    // Update settings based on session type - this will trigger timeRemaining update in store
-    if (currentSessionType === 'focus') {
-      updateSettings({ focusDuration: clampedMinutes });
-    } else if (currentSessionType === 'shortBreak') {
-      updateSettings({ shortBreakDuration: clampedMinutes });
-    } else {
-      updateSettings({ longBreakDuration: clampedMinutes });
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (pomodoroState === 'idle') {
-      setIsDragging(true);
-      handleTimeAdjustment(e.clientX, e.clientY);
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      handleTimeAdjustment(e.clientX, e.clientY);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (pomodoroState === 'idle' && e.touches.length > 0) {
-      setIsDragging(true);
-      handleTimeAdjustment(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isDragging && e.touches.length > 0) {
-      handleTimeAdjustment(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
 
   // Calculate progress
   const totalSeconds =
@@ -202,21 +129,7 @@ export function LiquidTimer() {
       {/* Liquid Timer Visual */}
       <div className="relative">
         {/* Outer Ring */}
-        <div 
-          ref={timerRef}
-          className={cn(
-            "border-border/50 relative h-64 w-64 rounded-full border transition-all",
-            pomodoroState === 'idle' && "cursor-pointer hover:border-accent/50"
-          )}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          title={pomodoroState === 'idle' ? 'Click and drag to adjust time' : undefined}
-        >
+        <div className="border-border/50 relative h-64 w-64 rounded-full border transition-all">
           {/* Liquid Fill */}
           <div className="bg-card absolute inset-2 overflow-hidden rounded-full">
             <motion.div
